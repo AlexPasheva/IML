@@ -162,8 +162,7 @@ int IMLDocument_load(IMLDocument* doc, std::string path)
             // Array between opening and closing tag
             if (lexi > 0) {
                 if (!CurrentNode) {
-                    std::cout << ("Text outside of document\n");
-                    return FALSE;
+                    throw "Text outside of document\n";
                 }
 
                 CurrentNode->array = ConvertStringtoDoubleVector(lex);
@@ -179,25 +178,16 @@ int IMLDocument_load(IMLDocument* doc, std::string path)
 
                 if (!CurrentNode) {
                     throw "Already at the root!";
-                    std::cout << ( "Already at the root\n");
-                    return FALSE;
                 }
 
                 if (CurrentNode->tag == lex) {
                     throw "Mismatched tags!";
-                    std::cout << "Mismatched tags ( ";
-                    std::cout << CurrentNode->tag;
-                    std::cout << " != ";
-                    std::cout << lex;
-                    std::cout << " )\n";
-                    return FALSE;
                 }
 
                 CurrentNode = CurrentNode->parent;
                 i++;
                 continue;
             }
-
 
             // Set current node
             IMLNode* NewNode(CurrentNode);
@@ -282,6 +272,4 @@ int IMLDocument_load(IMLDocument* doc, std::string path)
             lex[lexi++] = buf[i++];
         }
     }
-
-    return TRUE;
 }
