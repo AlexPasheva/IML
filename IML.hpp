@@ -144,14 +144,14 @@ int IMLDocument_load(IMLDocument* doc, std::string path)
 
     std::stringstream sstream;
     sstream << file.rdbuf(); //read the file
-    std::string buf = sstream.str(); //str holds the content of the file
+    std::string buf = sstream.str(); //buf holds the content of the file
 
     doc->root = nullptr;
 
     std::string lex;
-    int lexi = 0;
-    int i = 0;
-    std::string LexCopy;
+    int lexi = 0;// lexer iterator
+    int i = 0;// buffer iterator
+    //std::string LexCopy;
     IMLNode* CurrentNode = doc->root;
 
     while (buf[i] != '\0')
@@ -231,7 +231,7 @@ int IMLDocument_load(IMLDocument* doc, std::string path)
                     lex[lexi] = '\0';
                     CurrentAttribute = lex;
 
-                    if (Found(CurrentNode->tag) == 1)
+                    if (Found(CurrentAttribute) == 1)
                     {
                         try
                         {
@@ -242,7 +242,7 @@ int IMLDocument_load(IMLDocument* doc, std::string path)
                             throw "Attribute with wrong value.\n";
                         }
                     }
-                    else if (Found(CurrentNode->tag) == 3)
+                    else if (Found(CurrentAttribute) == 3)
                     {            
                         if (!(CurrentAttribute=="ASC"||CurrentAttribute=="DSC"))
                         {
@@ -250,16 +250,16 @@ int IMLDocument_load(IMLDocument* doc, std::string path)
                         }                        
                         CurrentNode->attributes = CurrentAttribute;
                     }
-                    else if (Found(CurrentNode->tag) == 2 && CurrentAttribute != "")
+                    else if (Found(CurrentAttribute) == 2 && CurrentAttribute != "")
                     {
                         throw "Added attribute whitout it being needed.\n";
                     }
-                    else if (Found(CurrentNode->tag) == 2)
+                    else if (Found(CurrentAttribute) == 2)
                     {
                         CurrentNode->attributes = "";
                         CurrentNode->attributed = NULL;
                     }
-                    else if (Found(CurrentNode->tag)==0)
+                    else if (Found(CurrentAttribute)==0)
                     {
                         throw "Tag not supported.\n";                        
                     }
@@ -269,7 +269,7 @@ int IMLDocument_load(IMLDocument* doc, std::string path)
                     continue;
                 }
             }
-            // Set tag name if none
+            // Set tag name if none... that must be kinda not needed...
             lex[lexi] = '\0';
             if (CurrentNode->tag=="")
                 throw "There cannot exist nameless tag";
