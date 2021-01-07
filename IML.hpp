@@ -85,7 +85,7 @@ int Found(std::string searched)
 {
     std::vector<std::string> TagsWithAtributeD = { "MAP-INC", "MAP-MLT", "SRT-SLC" };
     std::vector<std::string> TagsWithoutAtribute = { "AGG-SUM", "AGG-PRO", "AGG-AVG",
-                                                    "AGG-FST", "AGG-LST", "SRT-REV"};
+                                                    "AGG-FST", "AGG-LST", "SRT-REV" };
     std::string TagsWithoutAtributeS = "SRT-ORD";
     for (size_t i = 0; i < TagsWithAtributeD.size(); i++)
     {
@@ -131,12 +131,13 @@ int ParseIMLDocument(IMLDocument* doc, std::string path)
     int i = 0;// buffer iterator
     //std::string LexCopy;
     bool InTag = true;
-    std::string root="root";
-    IMLNode* CurrentNode = new IMLNode(root);
+    std::string root = "root";
+    doc->root = new IMLNode(root);
+    IMLNode* CurrentNode = doc->root;
 
     while (buf[i] != buf[buf.size()])
     {
-        if (!InTag && !array.empty() && (buf[i]=='<' || buf[i] == '>'))
+        if (!InTag && !array.empty() && (buf[i] == '<' || buf[i] == '>'))
         {
             std::cout << array << std::endl;
             std::vector<double> ar = ConvertStringtoDoubleVector(array);
@@ -146,7 +147,7 @@ int ParseIMLDocument(IMLDocument* doc, std::string path)
             }
             array = {};
         }
-        if (buf[i]=='<')
+        if (buf[i] == '<')
         {
             //closing tag
             if (buf[i + 1] == '/')
@@ -166,7 +167,7 @@ int ParseIMLDocument(IMLDocument* doc, std::string path)
                 }
                 else
                 {
-                    std::cout<< "Mismatched tags!";
+                    std::cout << "Mismatched tags!";
                     throw "Mismatched tags!";
                 }
             }

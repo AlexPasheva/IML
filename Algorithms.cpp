@@ -1,4 +1,4 @@
-#include "IML.hpp"
+#include "IMLParser.hpp"
 
 bool IsIntAndPositive(double num)
 {
@@ -7,20 +7,20 @@ bool IsIntAndPositive(double num)
 std::vector<double> MAPINC(std::vector<double>& data, double inc)
 {
     for (size_t i = 0; i < data.size(); i++)
-        data[i]+=inc;
+        data[i] += inc;
 
     return data;
 }
 std::vector<double> MAPMLT(std::vector<double>& data, double mlt)
 {
     for (size_t i = 0; i < data.size(); i++)
-        data[i]*=mlt;
-        
+        data[i] *= mlt;
+
     return data;
 }
 double AGGSUM(std::vector<double>& data)
 {
-    double res=0; 
+    double res = 0;
     for (size_t i = 0; i < data.size(); i++)
         res += data[i];
 
@@ -28,7 +28,7 @@ double AGGSUM(std::vector<double>& data)
 }
 double AGGPRO(std::vector<double>& data)
 {
-    double res=1; 
+    double res = 1;
     for (size_t i = 0; i < data.size(); i++)
         res *= data[i];
 
@@ -36,18 +36,18 @@ double AGGPRO(std::vector<double>& data)
 }
 double AGGAVG(std::vector<double>& data)
 {
-    double res=1;
-    size_t i = 0; 
-    for (i ; i < data.size(); i++)
+    double res = 1;
+    size_t i = 0;
+    for (i; i < data.size(); i++)
         res *= data[i];
 
     return res;
 }
 double AGGAVG(std::vector<double>& data)
 {
-    double res=1;
-    size_t i = 0; 
-    for (i ; i < data.size(); i++)
+    double res = 1;
+    size_t i = 0;
+    for (i; i < data.size(); i++)
         res *= data[i];
 
     return res;
@@ -61,16 +61,16 @@ double AGGFST(std::vector<double>& data)
     return data[data.size()];
 }
 
-std::vector<double> QuickSort(std::vector<double>& vec1){
+std::vector<double> QuickSort(std::vector<double>& vec1) {
 
     double i = 0;
-    double j = vec1.size()-2;
+    double j = vec1.size() - 2;
     double tmp;
-    int pivotindex = vec1.size()-1 ;
+    int pivotindex = vec1.size() - 1;
     double pivot = vec1[pivotindex];
 
-    if ( vec1.size()<=1 )
-        return vec1 ;
+    if (vec1.size() <= 1)
+        return vec1;
 
     while (i <= j) {
         while (vec1[i] < pivot) {
@@ -78,7 +78,7 @@ std::vector<double> QuickSort(std::vector<double>& vec1){
         }
         while (vec1[j] > pivot)
             j--;
-         if (i <= j) {
+        if (i <= j) {
             tmp = vec1[i];
             vec1[i] = vec1[j];
             vec1[j] = tmp;
@@ -87,43 +87,50 @@ std::vector<double> QuickSort(std::vector<double>& vec1){
         }
     }
     // pivot change
-    vec1[pivotindex] = vec1[i] ;
-    vec1[i]=pivot ;
-    pivotindex=i ;
+    vec1[pivotindex] = vec1[i];
+    vec1[i] = pivot;
+    pivotindex = i;
 
-    if (vec1.size()<=2 )
-        return vec1 ;
+    if (vec1.size() <= 2)
+        return vec1;
     // partition
-    std::vector<double> left_vec, right_vec ;
-    std::vector<double>::iterator pivotiter = vec1.begin()+pivotindex ;
-    copy(vec1.begin(), pivotiter, back_inserter(left_vec)) ;
-    copy(pivotiter+1, vec1.end(), back_inserter(right_vec)) ;
+    std::vector<double> left_vec, right_vec;
+    std::vector<double>::iterator pivotiter = vec1.begin() + pivotindex;
+    copy(vec1.begin(), pivotiter, back_inserter(left_vec));
+    copy(pivotiter + 1, vec1.end(), back_inserter(right_vec));
 
-   if (left_vec.size()>0 ) {
+    if (left_vec.size() > 0) {
         QuickSort(left_vec);
-        copy(left_vec.begin(), left_vec.end(), vec1.begin()) ;
+        copy(left_vec.begin(), left_vec.end(), vec1.begin());
     }
-   if (right_vec.size()>0 ) {
+    if (right_vec.size() > 0) {
         QuickSort(right_vec);
-        copy(right_vec.begin(), right_vec.end(), pivotiter+1) ;
+        copy(right_vec.begin(), right_vec.end(), pivotiter + 1);
     }
     return vec1;
 }
 std::vector<double> SRTREV(std::vector<double>& data)
 {
-    return reverse(data.begin(), data.end());
+    std::reverse(std::begin(data), std::end(data));
 }
-std::vector<double> SRTORD (std::vector<double>& data, std::string att)
+std::vector<double> SRTORD(std::vector<double>& data, std::string att)
 {
-    if (att=="DSC")
+    if (att == "DSC")
     {
-        std::vector<double>=QuickSort(data);
-        return reverse(a.begin(), a.end());
+        QuickSort(data);
+        std:: reverse(begin(data), end(data));
+        return data;
     }
-    else if (att=="ASC")
+    else if (att == "ASC")
         return QuickSort(data);
     else
-        throw "Error with sorting attribute.";   
+        throw "Error with sorting attribute.";
+}
+template<typename T>
+void pop_front(std::vector<T>& vec)
+{
+    vec.front() = vec.back();
+    vec.pop_back();
 }
 std::vector<double> SRTSLC(std::vector<double>& data, double inc)
 {
@@ -131,8 +138,12 @@ std::vector<double> SRTSLC(std::vector<double>& data, double inc)
     {
         throw "The attribute must be a positive whole number.";
     }
-    if (inc >= data.size())
+    if (inc > data.size())
     {
         throw "Attribute out of array size.";
-    }    
+    }
+    for (size_t i = 0; i < inc; i++)
+    {
+        pop_front(data);
+    }
 }
