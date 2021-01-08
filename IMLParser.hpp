@@ -7,7 +7,7 @@
 #include <vector>
 #include <string>
 #include <iterator>
-
+//----------------Structures for parse trees----------------//
 struct IMLNode
 {
 public:
@@ -38,17 +38,24 @@ public:
         PositionOfArray = this->parent->array.size();
         HasBeenInterpreted = false;
     }
+    void free(IMLNode* root)
+    {
+        for (int i = 0; i < root->children.size(); i++)
+            free(root->children[i]);
+
+        delete root;
+    }
 };
-
-void free(IMLNode* root)
+struct IMLDocument
 {
-    for (int i = 0; i < root->children.size(); i++)
-        free(root->children[i]);
+    IMLNode* root;
 
-    delete root->parent;
-    delete root;
+};
+void free(IMLDocument* doc)
+{
+    free(doc->root);
 }
-
+//----------------Helper functions for double vector----------------//
 std::vector<std::string> split(std::string str)
 {
     std::string buf;
@@ -59,11 +66,6 @@ std::vector<std::string> split(std::string str)
         tokens.push_back(buf);
     return tokens;
 }
-struct IMLDocument
-{
-    IMLNode* root;
-};
-
 std::vector<double> ConvertStringVectortoDoubleVector(const std::vector<std::string>& StringVector) {
     std::vector<double> DoubleVector(StringVector.size());
     std::transform(StringVector.begin(), StringVector.end(), DoubleVector.begin(), [](const std::string& val)
@@ -72,7 +74,6 @@ std::vector<double> ConvertStringVectortoDoubleVector(const std::vector<std::str
         });
     return DoubleVector;
 }
-
 std::vector<double> ConvertStringtoDoubleVector(std::string str)
 {
     try
@@ -84,7 +85,7 @@ std::vector<double> ConvertStringtoDoubleVector(std::string str)
         std::cout << "Wrong value of an element of the array.\n";
     }
 }
-
+//---------Functions for tag checks and tag interpretation---------//
 int Found(std::string searched)
 {
     std::vector<std::string> TagsWithAtributeD = { "MAP-INC", "MAP-MLT", "SRT-SLC" };
@@ -111,18 +112,6 @@ int Found(std::string searched)
     }
     return 0;
 }
-
-std::string ParseFileToString(std::string path)
-{
-    std::ifstream file;
-    file.open(path); //open the input file
-
-    std::stringstream sstream;
-    sstream << file.rdbuf(); //read the file
-    std::string buf = sstream.str(); //buf holds the content of the file
-    return buf;
-}
-
 void InterpretTagOntoArray(IMLNode* CurrentNode)
 {
     std::vector<std::string> Tags = { "MAP-INC", "MAP-MLT", "AGG-SUM", "AGG-PRO", "AGG-AVG",
@@ -165,7 +154,21 @@ void InterpretTagOntoArray(IMLNode* CurrentNode)
         break;
     }
 }
+//------------Parser for building the language tree------------//
+std::string ParseFileToString(std::string path)
+{
+    std::ifstream file;
+    if (file.fail()) {
+        std::cout << "Failed to open file!";
+        throw "Failed to open file!";
+    }
+    file.open(path); //open the input file
 
+    std::stringstream sstream;
+    sstream << file.rdbuf(); //read the file
+    std::string buf = sstream.str(); //buf holds the content of the file
+    return buf;
+}
 void ParseIMLDocument(IMLDocument* doc, std::string path)
 {
     std::string buf = ParseFileToString(path);
@@ -185,7 +188,6 @@ void ParseIMLDocument(IMLDocument* doc, std::string path)
     {
         if (!InTag && !array.empty() && (buf[i] == '<' || buf[i] == '>'))
         {
-            std::cout << array << std::endl;
             std::vector<double> arr = ConvertStringtoDoubleVector(array);
             for (int i = 0; i < arr.size(); i++)
             {
@@ -279,7 +281,7 @@ void ParseIMLDocument(IMLDocument* doc, std::string path)
                 }
                 tag.push_back(buf[i++]);
             }
-            //std::cout << tag << std::endl;
+
             if (Found(tag) == 0)
             {
                 std::cout << "Tag not supported!!!";
@@ -287,7 +289,6 @@ void ParseIMLDocument(IMLDocument* doc, std::string path)
             }
             tags.push(tag);
             CurrentNode->tag = tag;
-            std::cout << CurrentNode->tag << std::endl;
             InTag = false;
             i++;
             continue;
@@ -303,7 +304,7 @@ void ParseIMLDocument(IMLDocument* doc, std::string path)
         throw "Tag not supported!";
     }
 }
-
+//---------Functions for interpreting the parsed tree---------//
 bool AllChildrenInterpreted(IMLNode* child)
 {
     for (int i = 0; i < child->children.size(); i++)
@@ -315,7 +316,6 @@ bool AllChildrenInterpreted(IMLNode* child)
     }
     return true;
 }
-
 void InterpretChildren(IMLNode* child , int i)
 {
     if (child->children.empty() || AllChildrenInterpreted(child))
@@ -344,22 +344,6 @@ void InterpretChildren(IMLNode* child , int i)
 
     }
 }
-
-void print(std::vector<double> const& input)
-{
-    for (int i = 0; i < input.size(); i++) {
-        std::cout << input.at(i) << ' ';
-    }
-}
-
-void Print(std::vector<std::vector<double>> const& input)
-{
-    for (int i = 0; i < input.size(); i++) {
-        print(input[i]);
-        std::cout << std::endl;
-    }
-}
-
 std::vector<std::vector<double>> InterpretRoot(IMLDocument* doc)
 {
     std::vector<std::vector<double>> res = {};
@@ -374,4 +358,41 @@ std::vector<std::vector<double>> InterpretRoot(IMLDocument* doc)
     }
 
     return res;
+}
+//-And driver function for making output file with the result-//
+void InterpretToFile(std::string InputFile, std::string OutputFile)
+{
+    IMLDocument doc;
+    ParseIMLDocument(&doc, InputFile);
+    std::ofstream outputFile(OutputFile);
+    std::vector<std::vector<double>> res = InterpretRoot(&doc);
+
+    for (int i = 0; i < res.size(); i++)
+    {
+        std::reverse(begin(res[i]), end(res[i]));
+    }
+    std::reverse(begin(res), end(res));
+
+    for (int i = 0; i < res.size(); i++) 
+    {
+        std::copy(res[i].rbegin(), res[i].rend(), std::ostream_iterator<int>(outputFile, " "));
+    }
+    std::cout << "Done.";
+    void free();
+}
+//Helper functions for printing vector<double> and vector<vector<double>>//
+void print(std::vector<double> const& input)
+{
+    for (int i = 0; i < input.size(); i++)
+    {
+        std::cout << input.at(i) << ' ';
+    }
+}
+void Print(std::vector<std::vector<double>> const& input)
+{
+    for (int i = 0; i < input.size(); i++)
+    {
+        print(input[i]);
+        std::cout << std::endl;
+    }
 }

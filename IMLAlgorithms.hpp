@@ -5,6 +5,7 @@ bool IsIntAndPositive(double num)
 {
     return num == abs(static_cast<int>(num));
 }
+//------------------Map------------------//
 void MAPINC(std::vector<double>& data, double inc)
 {
     for (size_t i = 0; i < data.size(); i++)
@@ -15,6 +16,7 @@ void MAPMLT(std::vector<double>& data, double mlt)
     for (size_t i = 0; i < data.size(); i++)
         data[i] *= mlt;
 }
+//---------------Aggregate---------------//
 void AGGSUM(std::vector<double>& data)
 {
     double res = 0;
@@ -52,8 +54,7 @@ void AGGLST(std::vector<double>& data)
     data = {};
     data.push_back(res);
 }
-
-
+//----------------Sorting----------------//
 void SRTREV(std::vector<double>& data)
 {
     std::reverse(std::begin(data), std::end(data));
@@ -73,7 +74,6 @@ void SRTORD(std::vector<double>& data, std::string att)
         throw "Error with sorting attribute.";
     }
 }
-
 void SRTSLC(std::vector<double>& data, double inc)
 {
     if (!IsIntAndPositive(inc))
@@ -109,4 +109,3 @@ void SRTDST(std::vector<double>& data)
         }
     }
 }
-
