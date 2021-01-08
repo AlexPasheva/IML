@@ -1,22 +1,18 @@
-#include "IMLParser.hpp"
+#pragma once
 
 bool IsIntAndPositive(double num)
 {
     return num == abs(static_cast<int>(num));
 }
-std::vector<double> MAPINC(std::vector<double>& data, double inc)
+void MAPINC(std::vector<double>& data, double inc)
 {
     for (size_t i = 0; i < data.size(); i++)
         data[i] += inc;
-
-    return data;
 }
-std::vector<double> MAPMLT(std::vector<double>& data, double mlt)
+void MAPMLT(std::vector<double>& data, double mlt)
 {
     for (size_t i = 0; i < data.size(); i++)
         data[i] *= mlt;
-
-    return data;
 }
 double AGGSUM(std::vector<double>& data)
 {
@@ -36,27 +32,13 @@ double AGGPRO(std::vector<double>& data)
 }
 double AGGAVG(std::vector<double>& data)
 {
-    double res = 1;
-    size_t i = 0;
-    for (i; i < data.size(); i++)
-        res *= data[i];
-
-    return res;
-}
-double AGGAVG(std::vector<double>& data)
-{
-    double res = 1;
-    size_t i = 0;
-    for (i; i < data.size(); i++)
-        res *= data[i];
-
-    return res;
+    return AGGSUM(data) / data.size();
 }
 double AGGFST(std::vector<double>& data)
 {
     return data[0];
 }
-double AGGFST(std::vector<double>& data)
+double AGGLST(std::vector<double>& data)
 {
     return data[data.size()];
 }
@@ -109,41 +91,42 @@ std::vector<double> QuickSort(std::vector<double>& vec1) {
     }
     return vec1;
 }
-std::vector<double> SRTREV(std::vector<double>& data)
+void SRTREV(std::vector<double>& data)
 {
     std::reverse(std::begin(data), std::end(data));
 }
-std::vector<double> SRTORD(std::vector<double>& data, std::string att)
+void SRTORD(std::vector<double>& data, std::string att)
 {
     if (att == "DSC")
     {
         QuickSort(data);
-        std:: reverse(begin(data), end(data));
-        return data;
+        std::reverse(begin(data), end(data));
     }
     else if (att == "ASC")
-        return QuickSort(data);
+        QuickSort(data);
     else
+    {
+        std::cout << "The attribute must be a positive whole number.";
         throw "Error with sorting attribute.";
+    }
 }
-template<typename T>
-void pop_front(std::vector<T>& vec)
-{
-    vec.front() = vec.back();
-    vec.pop_back();
-}
-std::vector<double> SRTSLC(std::vector<double>& data, double inc)
+
+void SRTSLC(std::vector<double>& data, double inc)
 {
     if (!IsIntAndPositive(inc))
     {
+        std::cout << "The attribute must be a positive whole number.";
         throw "The attribute must be a positive whole number.";
     }
     if (inc > data.size())
     {
+        std::cout<< "Attribute out of array size.";
         throw "Attribute out of array size.";
     }
+    std::reverse(begin(data), end(data));
     for (size_t i = 0; i < inc; i++)
     {
-        pop_front(data);
+        data.pop_back();
     }
+    std::reverse(begin(data), end(data));
 }
