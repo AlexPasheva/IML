@@ -1,13 +1,12 @@
-#include <iostream> 
+#pragma once
+#include "IMLAlgorithms.hpp"
 #include <fstream>
 #include <sstream>
-#include <algorithm>
 #include <stack>
 #include <list> 
 #include <vector>
 #include <string>
 #include <iterator>
-
 
 struct IMLNode
 {
@@ -17,7 +16,9 @@ public:
     IMLNode* parent;
     double attributed;
     std::string attributes;
+    int PositionOfArray;
     std::vector<IMLNode*> children;
+    bool HasBeenInterpreted;
     IMLNode(std::string tag)
     {
         this->parent = nullptr;
@@ -25,13 +26,17 @@ public:
         this->attributed;
         this->attributes = "";
         this->array = {};
+        this->PositionOfArray = 0;
         this->children = {};
+        HasBeenInterpreted = false;
     }
     IMLNode(IMLNode* parent)
     {
         this->parent = parent;
         if (parent)
             parent->children.push_back(this);
+        PositionOfArray = this->parent->array.size();
+        HasBeenInterpreted = false;
     }
 };
 
@@ -84,7 +89,7 @@ int Found(std::string searched)
 {
     std::vector<std::string> TagsWithAtributeD = { "MAP-INC", "MAP-MLT", "SRT-SLC" };
     std::vector<std::string> TagsWithoutAtribute = { "AGG-SUM", "AGG-PRO", "AGG-AVG",
-                                                    "AGG-FST", "AGG-LST", "SRT-REV" };
+                                                    "AGG-FST", "AGG-LST", "SRT-REV", "SRT-DST" };
     std::string TagsWithoutAtributeS = "SRT-ORD";
     for (size_t i = 0; i < TagsWithAtributeD.size(); i++)
     {
@@ -118,7 +123,50 @@ std::string ParseFileToString(std::string path)
     return buf;
 }
 
-int ParseIMLDocument(IMLDocument* doc, std::string path)
+void InterpretTagOntoArray(IMLNode* CurrentNode)
+{
+    std::vector<std::string> Tags = { "MAP-INC", "MAP-MLT", "AGG-SUM", "AGG-PRO", "AGG-AVG",
+                                      "AGG-FST", "AGG-LST", "SRT-REV", "SRT-ORD", "SRT-SLC", "SRT-DST" };
+    int i = 0;
+    for (i; i < Tags.size(); i++)
+    {
+        if (CurrentNode->tag == Tags[i])
+        {
+            break;
+        }
+    }
+    double num = 0;
+    switch (i)
+    {
+    case 0: MAPINC(CurrentNode->array, CurrentNode->attributed);
+        break;
+    case 1: MAPMLT(CurrentNode->array, CurrentNode->attributed);
+        break;
+    case 2: AGGSUM(CurrentNode->array);
+        break;
+    case 3: AGGPRO(CurrentNode->array);
+        break;
+    case 4: AGGAVG(CurrentNode->array);
+        break;
+    case 5: AGGFST(CurrentNode->array);
+        break;
+    case 6: AGGLST(CurrentNode->array);
+        break;
+    case 7: SRTREV(CurrentNode->array);
+        break;
+    case 8: SRTORD(CurrentNode->array, CurrentNode->attributes);
+        break;
+    case 9: SRTSLC(CurrentNode->array, CurrentNode->attributed);
+        break;
+    case 10: SRTDST(CurrentNode->array);
+        break;
+
+    default: std::cout << "I don't know how but you broke it, happy now?"; throw "WTF error!";
+        break;
+    }
+}
+
+void ParseIMLDocument(IMLDocument* doc, std::string path)
 {
     std::string buf = ParseFileToString(path);
 
@@ -127,8 +175,7 @@ int ParseIMLDocument(IMLDocument* doc, std::string path)
     std::string array;
     std::string attribute;
     std::stack<std::string> tags;
-    int i = 0;// buffer iterator
-    //std::string LexCopy;
+    int i = 0;
     bool InTag = true;
     std::string root = "root";
     doc->root = new IMLNode(root);
@@ -139,10 +186,10 @@ int ParseIMLDocument(IMLDocument* doc, std::string path)
         if (!InTag && !array.empty() && (buf[i] == '<' || buf[i] == '>'))
         {
             std::cout << array << std::endl;
-            std::vector<double> ar = ConvertStringtoDoubleVector(array);
-            for (int i = 0; i < ar.size(); i++)
+            std::vector<double> arr = ConvertStringtoDoubleVector(array);
+            for (int i = 0; i < arr.size(); i++)
             {
-                CurrentNode->array.push_back(ar[i]);
+                CurrentNode->array.push_back(arr[i]);
             }
             array = {};
         }
@@ -255,4 +302,76 @@ int ParseIMLDocument(IMLDocument* doc, std::string path)
         std::cout << "Tag not supported!";
         throw "Tag not supported!";
     }
+}
+
+bool AllChildrenInterpreted(IMLNode* child)
+{
+    for (int i = 0; i < child->children.size(); i++)
+    {
+        if (!child->children[i]->HasBeenInterpreted)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+void InterpretChildren(IMLNode* child , int i)
+{
+    if (child->children.empty() || AllChildrenInterpreted(child))
+    {
+        if (!(child->parent->tag == "root"))
+        {
+            auto itPos = child->parent->array.begin() + child->PositionOfArray;
+            InterpretTagOntoArray(child);
+            child->parent->array.insert(itPos, child->array.begin(), child->array.end());
+            child->HasBeenInterpreted = true;
+            InterpretChildren(child->parent,i);
+        }
+        else
+        {
+            InterpretTagOntoArray(child);
+            return;
+        }
+    }
+    else
+    {
+        while (i < child->children.size())
+        {
+          InterpretChildren(child->children[i],i);
+          i++;
+        }
+
+    }
+}
+
+void print(std::vector<double> const& input)
+{
+    for (int i = 0; i < input.size(); i++) {
+        std::cout << input.at(i) << ' ';
+    }
+}
+
+void Print(std::vector<std::vector<double>> const& input)
+{
+    for (int i = 0; i < input.size(); i++) {
+        print(input[i]);
+        std::cout << std::endl;
+    }
+}
+
+std::vector<std::vector<double>> InterpretRoot(IMLDocument* doc)
+{
+    std::vector<std::vector<double>> res = {};
+
+    for (int i = 0; i < doc->root->children.size(); i++)
+    {
+        InterpretChildren(doc->root->children[i],0);
+    }
+    for (int i = 0; i < doc->root->children.size(); i++)
+    {
+        res.push_back(doc->root->children[i]->array);
+    }
+
+    return res;
 }
