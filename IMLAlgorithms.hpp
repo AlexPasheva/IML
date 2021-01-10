@@ -1,7 +1,7 @@
 #pragma once
 #include <unordered_set>
 #include <algorithm>
-bool IsIntAndPositive(double num)
+bool IsIntAndPositive(double num)//this checks for that attribute that must be a whole number
 {
     return num == abs(static_cast<int>(num));
 }
