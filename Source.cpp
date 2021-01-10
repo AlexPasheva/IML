@@ -4,5 +4,9 @@
 
 int main()
 {
-    InterpretToFile("test1.iml", "testOut.txt");
+    std::string input;
+    std::string output;
+    std::cin >> input;
+    std::cin >> output;
+    InterpretToFile(input, output);
 }
