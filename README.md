@@ -11,11 +11,11 @@ Map: <MAP-INC "N"> и <MAP-MLT "N"> където N е дробно число</b
 </br>
 </br>
 Aggregate: <AGG-SUM>, <AGG-PRO>, <AGG-AVG>, <AGG-FST>, <AGG-LST></br>
-<AGG-SUM>1 2 3</AGG-SUM> ⇒ 6</br>
-<AGG-PRO>1 2 3</AGG-PRO> ⇒ 6</br>
-<AGG-AVG>1 2 3</AGG-AVG> ⇒ 2</br>
-<AGG-FST>1 2 3</AGG-FST> ⇒ 1</br>
-<AGG-LST>1 2 3</AGG-LST> ⇒ 3</br>
+<AGG-SUM>1 2 3\</AGG-SUM> ⇒ 6</br>
+<AGG-PRO>1 2 3\</AGG-PRO> ⇒ 6</br>
+<AGG-AVG>1 2 3\</AGG-AVG> ⇒ 2</br>
+<AGG-FST>1 2 3\</AGG-FST> ⇒ 1</br>
+<AGG-LST>1 2 3\</AGG-LST> ⇒ 3</br>
 </br>
 </br>
 Sorting: <SRT-REV>, <SRT-ORD "ARG">, където ARG е ASC или DSC, <SRT-SLC "N">, където N е положително цяло число, <SRT-DST></br>
