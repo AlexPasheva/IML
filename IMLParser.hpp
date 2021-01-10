@@ -316,32 +316,35 @@ bool AllChildrenInterpreted(IMLNode* child)
     }
     return true;
 }
-void InterpretChildren(IMLNode* child , int i)
+void InterpretChildren(IMLNode* child);
+void InterpretChild(IMLNode* child)
 {
-    if (child->children.empty() || AllChildrenInterpreted(child))
+    if (!(child->parent->tag == "root") && (child->children.empty() || AllChildrenInterpreted(child)))
     {
-        if (!(child->parent->tag == "root"))
-        {
-            auto itPos = child->parent->array.begin() + child->PositionOfArray;
-            InterpretTagOntoArray(child);
-            child->parent->array.insert(itPos, child->array.begin(), child->array.end());
-            child->HasBeenInterpreted = true;
-            InterpretChildren(child->parent,i);
-        }
-        else
-        {
-            InterpretTagOntoArray(child);
-            return;
-        }
+        auto itPos = child->parent->array.begin() + child->PositionOfArray;
+        InterpretTagOntoArray(child);
+        child->parent->array.insert(itPos, child->array.begin(), child->array.end());
+        child->HasBeenInterpreted = true;
+        InterpretChildren(child->parent);
     }
     else
     {
-        while (i < child->children.size())
+        InterpretChildren(child);
+    }
+}
+void InterpretChildren(IMLNode* child)
+{
+    int i = 0;
+    while (i < child->children.size())
+    {
+        if (child->children[i]->HasBeenInterpreted)
         {
-          InterpretChildren(child->children[i],i);
-          i++;
+            i++;
         }
-
+        else
+        {
+            InterpretChild(child->children[i]);
+        }
     }
 }
 std::vector<std::vector<double>> InterpretRoot(IMLDocument* doc)
@@ -350,7 +353,8 @@ std::vector<std::vector<double>> InterpretRoot(IMLDocument* doc)
 
     for (int i = 0; i < doc->root->children.size(); i++)
     {
-        InterpretChildren(doc->root->children[i],0);
+        InterpretChild(doc->root->children[i]);
+        InterpretTagOntoArray(doc->root->children[i]);
     }
     for (int i = 0; i < doc->root->children.size(); i++)
     {
