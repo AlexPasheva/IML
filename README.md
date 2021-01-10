@@ -30,7 +30,8 @@ Sorting: <SRT-REV>, <SRT-ORD "ARG">, където ARG е ASC или DSC, <SRT-SL
 Първи пример:
 
 
-<SRT-ORD "ASC">81 3<MAP-INC "1">4 12 55<AGG-AVG>4 8</AGG-AVG></MAP-INC>22</SRT-ORD>
+<SRT-ORD "ASC">81 3<MAP-INC "1">4 12 55<AGG-AVG>4 8
+</AGG-AVG></MAP-INC>22</SRT-ORD>
 
 
 Трансформира се до:
@@ -38,7 +39,8 @@ Sorting: <SRT-REV>, <SRT-ORD "ARG">, където ARG е ASC или DSC, <SRT-SL
 
 Втори пример:
 
-<SRT-DST><SRT-SLC "3">57 18 9<MAP-INC "-3">4 2 2</MAP-INC>5</SRT-SLC></SRT-DST>
+<SRT-DST><SRT-SLC "3">57 18 9<MAP-INC "-3">4 2 2
+  </MAP-INC>5</SRT-SLC></SRT-DST>
 
 
 Трансформира се до:
